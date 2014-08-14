@@ -1,0 +1,48 @@
+[Music box CUI]
+
+Write an F# 2.0 code that implements a pseudo command-line music-box.
+Using external libraries except fslex, fsyacc and FParsec is not allowed.
+
+For the music-box, albums are stored in a text file in a serialized form such as json, xml or s-expression.
+
+The following should be used as the type for storing a Song:
+
+type Album = { Name: string; Year: int }
+type Song = { Artist: string; Song: string; TimeInSec: int; Album: Album }
+
+Also a play list that defines how songs in the album file are picked/played is stored in a text file.
+
+The content of the play list should be:
+
+- A series of select statements in a text file, and a select statement should allow you to:
+
+  - extract songs with attributes of Song/Album types. 
+    "<", ">" and "=" operators should be supported at minimum.
+
+  - order/shuffle songs by attributes of Song/Album types
+
+  - select top X from the selection result
+
+An example of select statement is:   
+
+select by Name = "Kirinji", Year > 2010 order Album, TimeInSec top 5
+
+The music-box should support the following commands:
+
+--init [file] ... initializes the music-box w/ the albums contained in the file
+--load [file] ... loads and evaluates a play list defined in the file
+--play        ... prints out the songs in the order they are played
+
+Example execution:
+
+$ music-box --init albums
+$ music-box --load my-favorite-aor
+$ music-box --play
+
+1. Daikanyama Eregy (6:04) - Kirinji (OMNIBUS 2002)
+2. Ougon no Fune (4:20) - Kirinji (Ten 2013) 
+3. I.G.Y. (6:03) - Donald Fagen (The Nightfly 1982)
+
+$
+
+
