@@ -1,40 +1,42 @@
-[Music box CUI]
+# コマンドラインMusic boxもどき
 
-Write an F# 2.0 code that implements a pseudo command-line music-box.
-Using external libraries except fslex, fsyacc and FParsec is not allowed.
+偽のコマンドラインmusic-boxを実装したF# 2.0のコードを書いてください。
+fslex, fsyacc, FParsecを除いて、外部ライブラリの使用は控えてください。
 
-For the music-box, albums are stored in a text file in a serialized form such as json, xml or s-expression.
+このmusic-boxにおいては、複数のアルバムがテキストファイルに格納されているものとします。
+それはjson, xml, S式のようなものでフォーマットされているとします。
 
-The following should be used as the type for storing a Song:
+曲を保管するために次の型を使ってください:
 
+```fsharp
 type Album = { Name: string; Year: int }
 type Song = { Artist: string; Song: string; TimeInSec: int; Album: Album }
+```
 
-Also a play list that defines how songs in the album file are picked/played is stored in a text file.
+また、アルバムファイル内の曲をどのように選択/再生するのかを定義したプレイリストも、テキストファイルに格納されているものとします。
 
-The content of the play list should be:
+プレイリストの中身は次のようなものです:
 
-- A series of select statements in a text file, and a select statement should allow you to:
+* テキストファイルには一連のselect命令があり、1つのselect命令は以下を指示します:
+    * Song/Album型の属性を用いて曲/アルバム曲を展開します。"<", ">", "=" 演算子を最低でもサポートしてください。
+    * order/shuffle: Song/Album型の属性で曲を並べ替え/シャッフルします。
+    * top X: 選択された結果から上位Xを選択します。
 
-  - extract songs with attributes of Song/Album types. 
-    "<", ">" and "=" operators should be supported at minimum.
+次はselect命令の例です:
 
-  - order/shuffle songs by attributes of Song/Album types
-
-  - select top X from the selection result
-
-An example of select statement is:   
-
+```
 select by Name = "Kirinji", Year > 2010 order Album, TimeInSec top 5
+```
 
-The music-box should support the following commands:
+music-boxは次のコマンドをサポートします:
 
---init [file] ... initializes the music-box w/ the albums contained in the file
---load [file] ... loads and evaluates a play list defined in the file
---play        ... prints out the songs in the order they are played
+* --init [file]: ファイルに含まれたアルバムでmusic-boxを初期化します
+* --load [file]: ファイルで定義されたプレイリストを読み込んで評価します
+* --play:        再生される順番で、曲を印字します
 
-Example execution:
+以下は実行例です:
 
+```
 $ music-box --init albums
 $ music-box --load my-favorite-aor
 $ music-box --play
@@ -44,5 +46,4 @@ $ music-box --play
 3. I.G.Y. (6:03) - Donald Fagen (The Nightfly 1982)
 
 $
-
-
+```
