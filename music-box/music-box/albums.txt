@@ -1,0 +1,36 @@
+﻿{
+    "Album": [
+        {
+            "Name": "Album A",
+            "Year": 1999
+        },
+        {
+            "Name": "Album B",
+            "Year": 2011
+        },
+        {
+            "Name": "Album C",
+            "Year": 2005
+        }
+    ],
+    "Song": [
+        {
+            "Artist": "X",
+            "Song": "Hoge",
+            "TimeInSec": 71,
+            "Album": "Album A"
+        },
+        {
+            "Artist": "Y",
+            "Song": "Nyoro",
+            "TimeInSec": 32,
+            "Album": "Album B"
+        },
+        {
+            "Artist": "Z",
+            "Song": "Hoge",
+            "TimeInSec": 91,
+            "Album": "Album A"
+        }
+    ]
+}
