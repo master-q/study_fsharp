@@ -4,7 +4,6 @@ open FParsec
 (* Datatype *)
 type Album = { Name: string; Year: int }
 type Song  = { Artist: string; Song: string; TimeInSec: int; Album: Album }
-type Songx = { Artist: string; Song: string; TimeInSec: int; Albumx: string }
 
 (* Parse JSON *)
 type Json = JString of string
@@ -66,7 +65,9 @@ let json = ws >>. jvalue .>> ws .>> eof
 let runinit file =
     let byte = File.ReadAllBytes(file)
     let str = System.Text.ASCIIEncoding.Default.GetString byte
-    printf "%s" str
+    match run json str with
+    | Success(result, _, _)   -> printfn "Success: %A" result
+    | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
     0
 
 let runload file =
@@ -81,4 +82,4 @@ let main argv =
     | [| "--init" ; file |] -> runinit file
     | [| "--load" ; file |] -> runload file
     | [| "--play" |]        -> runplay
-    | _                     -> 1 (* Error *)
+    | _                     -> printfn "*** Unknown command option."; 1
