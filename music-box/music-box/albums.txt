@@ -1,4 +1,4 @@
-﻿{
+{
     "Album": [
         {
             "Name": "Album A",
