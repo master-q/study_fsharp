@@ -63,10 +63,22 @@ let json = ws >>. jvalue .>> ws .>> eof
 (* Parse Playlist *)
 
 (* Main *)
-[<EntryPoint>]
-let main argv = 
-    printfn "%A" argv
-    let byte = File.ReadAllBytes(argv.[0])
+let runinit file =
+    let byte = File.ReadAllBytes(file)
     let str = System.Text.ASCIIEncoding.Default.GetString byte
     printf "%s" str
     0
+
+let runload file =
+    0
+
+let runplay =
+    0
+
+[<EntryPoint>]
+let main argv = 
+    match argv with
+    | [| "--init" ; file |] -> runinit file
+    | [| "--load" ; file |] -> runload file
+    | [| "--play" |]        -> runplay
+    | _                     -> 1 (* Error *)
