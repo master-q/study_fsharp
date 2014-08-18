@@ -4,6 +4,12 @@ open FParsec
 (* Datatype *)
 type Album = { Name: string; Year: int }
 type Song  = { Artist: string; Song: string; TimeInSec: int; Album: Album }
+type Attribute = AttrName of string
+               | AttrYear of int 
+               | AttrArtist of string
+               | AttrSong of string
+               | AttrTimeInSec of init
+               | AttrAlbum of string
 
 (* Parse JSON *)
 type Json = JString of string
@@ -60,6 +66,12 @@ do jvalueRef := choice [jobject
 let json = ws >>. jvalue .>> ws .>> eof
 
 (* Parse Playlist *)
+type SeAttributeOp = SeoLt of Attribute
+                   | SeoEq of Attribute
+                   | SeoGt of Attribute
+type SeSort = SesOrder of Attribute list
+            | SesShuffle
+type Select = SeAttributeOp list * SeSort * int
 
 (* Main *)
 let runinit file =
