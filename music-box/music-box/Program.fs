@@ -4,12 +4,6 @@ open FParsec
 (* Datatype *)
 type Album = { Name: string; Year: int }
 type Song  = { Artist: string; Song: string; TimeInSec: int; Album: Album }
-type Attribute = AttrName of string
-               | AttrYear of int 
-               | AttrArtist of string
-               | AttrSong of string
-               | AttrTimeInSec of int
-               | AttrAlbum of string
 
 (* Parse JSON *)
 type Json = JString of string
@@ -66,12 +60,40 @@ do jvalueRef := choice [jobject
 let json = ws >>. jvalue .>> ws .>> eof
 
 (* Parse Playlist *)
-type SeAttributeOp = SeoLt of Attribute
-                   | SeoEq of Attribute
-                   | SeoGt of Attribute
+type Attribute = AttrName of string
+               | AttrYear of int 
+               | AttrArtist of string
+               | AttrSong of string
+               | AttrTimeInSec of int
+               | AttrAlbum of string
+type SeOp = SeoLt
+          | SeoEq
+          | SeoGt
 type SeSort = SesOrder of Attribute list
             | SesShuffle
-type Select = SeAttributeOp list * SeSort * int
+type Sby = (SeOp * Attribute) list
+
+let sop =     stringReturn "<" SeoLt
+          <|> stringReturn "=" SeoEq
+          <|> stringReturn ">" SeoGt
+let sattributeop =     (str "Name"      >>. ws >>. (sop .>> ws) .>>. (stringLiteral |>> AttrName))
+                   <|> (str "Year"      >>. ws >>. (sop .>> ws) .>>. (pint32        |>> AttrYear))
+                   <|> (str "Artist"    >>. ws >>. (sop .>> ws) .>>. (stringLiteral |>> AttrArtist))
+                   <|> (str "Song"      >>. ws >>. (sop .>> ws) .>>. (stringLiteral |>> AttrSong))
+                   <|> (str "TimeInSec" >>. ws >>. (sop .>> ws) .>>. (pint32        |>> AttrTimeInSec))
+                   <|> (str "Album"     >>. ws >>. (sop .>> ws) .>>. (stringLiteral |>> AttrAlbum))
+let sattribute =     (stringReturn "Name"      (AttrName ""))
+                 <|> (stringReturn "Year"      (AttrYear 0))
+                 <|> (stringReturn "Artist"    (AttrArtist ""))
+                 <|> (stringReturn "Song"      (AttrSong ""))
+                 <|> (stringReturn "TimeInSec" (AttrTimeInSec 0))
+                 <|> (stringReturn "Album"     (AttrAlbum ""))
+let sby = str "by" >>. ws >>. (sepBy1 sattributeop (str ","))
+let sorder = str "order" >>. ws >>. (sepBy1 sattribute (str ",") |>> SesOrder)
+let sshuffle = stringReturn "shuffle" SesShuffle
+let ssort = sorder <|> sshuffle
+let stop = str "top" >>. ws >>. pint32
+let sselect = str "select" >>. sby .>>. ssort .>>. stop
 
 (* Main *)
 let runinit file =
@@ -83,6 +105,11 @@ let runinit file =
     0
 
 let runload file =
+    let byte = File.ReadAllBytes(file)
+    let str = System.Text.ASCIIEncoding.Default.GetString byte
+    match run sselect str with
+    | Success(result, _, _)   -> printfn "Success: %A" result
+    | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
     0
 
 let runplay =
