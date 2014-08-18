@@ -7,7 +7,7 @@ type Song  = { Artist: string; Song: string; TimeInSec: int; Album: Album }
 
 (* Parse JSON *)
 type Json = JString of string
-          | JNumber of float
+          | JNumber of int
           | JBool   of bool
           | JNull
           | JList   of Json list
@@ -44,7 +44,7 @@ let jstring = stringLiteral |>> JString
 let jnull = stringReturn "null" JNull
 let jbool =     (stringReturn "true"  (JBool true))
             <|> (stringReturn "false" (JBool false))
-let jnumber = pfloat |>> JNumber
+let jnumber = pint32 |>> JNumber
 let jvalue, jvalueRef = createParserForwardedToRef<Json, unit>()
 let jlist = listBetweenStrings "[" "]" jvalue JList
 let keyValue = stringLiteral .>>. (ws >>. str ":" >>. ws >>. jvalue)
@@ -88,12 +88,12 @@ let sattribute =     (stringReturn "Name"      (AttrName ""))
                  <|> (stringReturn "Song"      (AttrSong ""))
                  <|> (stringReturn "TimeInSec" (AttrTimeInSec 0))
                  <|> (stringReturn "Album"     (AttrAlbum ""))
-let sby = str "by" >>. ws >>. (sepBy1 sattributeop (str ","))
-let sorder = str "order" >>. ws >>. (sepBy1 sattribute (str ",") |>> SesOrder)
+let sby = str "by" >>. ws >>. (sepBy1 (ws >>. sattributeop) (str ","))
+let sorder = str "order" >>. ws >>. (sepBy1 (ws >>. sattribute) (str ",") |>> SesOrder)
 let sshuffle = stringReturn "shuffle" SesShuffle
 let ssort = sorder <|> sshuffle
 let stop = str "top" >>. ws >>. pint32
-let sselect = str "select" >>. sby .>>. ssort .>>. stop
+let sselect = str "select" >>. ws >>. (sby .>> ws) .>>. (ssort .>> ws) .>>. stop
 
 (* Main *)
 let runinit file =
