@@ -8,7 +8,7 @@ type Attribute = AttrName of string
                | AttrYear of int 
                | AttrArtist of string
                | AttrSong of string
-               | AttrTimeInSec of init
+               | AttrTimeInSec of int
                | AttrAlbum of string
 
 (* Parse JSON *)
