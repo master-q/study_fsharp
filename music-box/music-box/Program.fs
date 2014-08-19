@@ -97,12 +97,12 @@ let sselect = str "select" >>. ws >>. (sby .>> ws) .>>. (ssort .>> ws) .>>. stop
 
 (* Main *)
 let writeToFile (filename:string) (data:string list) =
-  use sw = new System.IO.StreamWriter(filename)
+  use sw = new StreamWriter(filename)
   data |> List.iter sw.WriteLine
   data.Length ;;
 
 let lineOfFile (filename:string) =
-  seq { use sr = new System.IO.StreamReader(filename)
+  seq { use sr = new StreamReader(filename)
         while not sr.EndOfStream do
           yield sr.ReadLine()
       };;
