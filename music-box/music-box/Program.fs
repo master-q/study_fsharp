@@ -96,23 +96,42 @@ let stop = str "top" >>. ws >>. pint32
 let sselect = str "select" >>. ws >>. (sby .>> ws) .>>. (ssort .>> ws) .>>. stop
 
 (* Main *)
+let writeToFile (filename:string) (data:string list) =
+  use sw = new System.IO.StreamWriter(filename)
+  data |> List.iter sw.WriteLine
+  data.Length ;;
+
+let lineOfFile (filename:string) =
+  seq { use sr = new System.IO.StreamReader(filename)
+        while not sr.EndOfStream do
+          yield sr.ReadLine()
+      };;
+
 let runinit file =
-    let byte = File.ReadAllBytes(file)
+    let _ = writeToFile ".\init-music-box.cnf" [file]
+    0
+
+let runload file =
+    let _ = writeToFile ".\load-music-box.cnf" [file]
+    0
+
+let runplay =
+    (* Read init config *)
+    let initSeq = lineOfFile ".\init-music-box.cnf"
+    printfn "%A" initSeq
+    let byte = File.ReadAllBytes(Seq.head initSeq)
     let str = System.Text.ASCIIEncoding.Default.GetString byte
     match run json str with
     | Success(result, _, _)   -> printfn "Success: %A" result
     | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
-    0
-
-let runload file =
-    let byte = File.ReadAllBytes(file)
+    (* Read load config *)
+    let loadSeq = lineOfFile ".\load-music-box.cnf"
+    printfn "%A" loadSeq
+    let byte = File.ReadAllBytes(Seq.head loadSeq)
     let str = System.Text.ASCIIEncoding.Default.GetString byte
     match run sselect str with
     | Success(result, _, _)   -> printfn "Success: %A" result
     | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
-    0
-
-let runplay =
     0
 
 [<EntryPoint>]
