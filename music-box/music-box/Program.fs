@@ -4,6 +4,7 @@ open FParsec
 (* Datatype *)
 type Album = { Name: string; Year: int }
 type Song  = { Artist: string; Song: string; TimeInSec: int; Album: Album }
+exception ParserError of string
 
 (* Parse JSON *)
 type Json = JString of string
@@ -115,23 +116,28 @@ let runload file =
     let _ = writeToFile ".\load-music-box.cnf" [file]
     0
 
-let runplay =
-    (* Read init config *)
-    let initSeq = lineOfFile ".\init-music-box.cnf"
-    printfn "%A" initSeq
+let getFirstLineOfFile file =
+    let initSeq = lineOfFile file
     let byte = File.ReadAllBytes(Seq.head initSeq)
-    let str = System.Text.ASCIIEncoding.Default.GetString byte
+    System.Text.ASCIIEncoding.Default.GetString byte
+
+let readInitConfig =
+    let str = getFirstLineOfFile ".\init-music-box.cnf"
     match run json str with
-    | Success(result, _, _)   -> printfn "Success: %A" result
-    | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
-    (* Read load config *)
-    let loadSeq = lineOfFile ".\load-music-box.cnf"
-    printfn "%A" loadSeq
-    let byte = File.ReadAllBytes(Seq.head loadSeq)
-    let str = System.Text.ASCIIEncoding.Default.GetString byte
+    | Success(result, _, _)   -> result
+    | Failure(errorMsg, _, _) -> raise (ParserError errorMsg)
+
+let readLoadConfig =
+    let str = getFirstLineOfFile ".\load-music-box.cnf"
     match run sselect str with
-    | Success(result, _, _)   -> printfn "Success: %A" result
-    | Failure(errorMsg, _, _) -> printfn "Failure: %s" errorMsg
+    | Success(result, _, _)   -> result
+    | Failure(errorMsg, _, _) -> raise (ParserError errorMsg)
+
+let runplay =
+    let dataJson = readInitConfig
+    printfn "%A" dataJson
+    let dataSelect = readLoadConfig
+    printfn "%A" dataSelect
     0
 
 [<EntryPoint>]
