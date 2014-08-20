@@ -1,7 +1,7 @@
 {
     "Album": [
         {
-            "Name": "Drifter / 太陽とヴィーナス",
+            "Name": "Drifter / Taiyo to Venus",
             "Year": 2001
         },
         {
@@ -14,13 +14,13 @@
             "Artist": "Kirinji",
             "Song": "Drifter",
             "TimeInSec": 71,
-            "Album": "Drifter / 太陽とヴィーナス"
+            "Album": "Drifter / Taiyo to Venus"
         },
         {
             "Artist": "Kirinji",
-            "Song": "太陽とヴィーナス",
+            "Song": "Taiyo to Venus",
             "TimeInSec": 32,
-            "Album": "Drifter / 太陽とヴィーナス"
+            "Album": "Drifter / Taiyo to Venus"
         },
         {
             "Artist": "the pillows",
