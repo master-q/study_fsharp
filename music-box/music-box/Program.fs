@@ -190,20 +190,53 @@ let rec filterBy selBy songs =
     | x :: xs -> List.filter (f x) songs |> filterBy xs
     | [] -> songs
 
+let filterSort selSort songs =
+    let f sort a b =
+        match sort with
+        | AttrName _      -> compare a.Album.Name b.Album.Name
+        | AttrYear _      -> compare a.Album.Year b.Album.Year
+        | AttrArtist _    -> compare a.Artist b.Artist
+        | AttrSong _      -> compare a.Song b.Song
+        | AttrTimeInSec _ -> compare a.TimeInSec b.TimeInSec
+        | AttrAlbum _     -> compare a.Album.Name b.Album.Name
+    let rec g sorts songs =
+        match sorts with
+        | x :: xs -> List.sortWith (f x) songs |> g xs
+        | [] -> songs
+    match selSort with
+    | SesOrder orders -> g orders songs
+
+let filterTop selTop songs =
+    let rec take n l =
+        if n <= 0 then [] else
+            match l with
+            | x :: xs -> x :: take (n - 1) xs
+            | [] -> []
+    take selTop songs
+
 let filterSongs sel songs =
     let selBy = fst sel |> fst
     let selSort = fst sel |> snd
     let selTop = snd sel
-    filterBy selBy songs // |> filterSort selSort |> filterTop selTop
+    filterBy selBy songs |> filterSort selSort |> filterTop selTop
+
+let printSongs songs =
+    let time sec =
+        sprintf "%d:%02d" (sec / 60) (sec % 60)
+    let rec f n songs =
+        match songs with
+        | x :: xs -> printfn "%d. %s (%s) - %s (%s %d)" n x.Song (time x.TimeInSec) x.Artist x.Album.Name x.Album.Year; f (n + 1) xs
+        | [] -> ()
+    f 0 songs
 
 let runplay () =
     let dataJson = readInitConfig ()
     let dataAlbum = mapJsonToAlbum dataJson
-    printfn "%A" dataAlbum
     let dataSelect = readLoadConfig ()
-    printfn "%A" dataSelect
     let result = filterSongs dataSelect (snd dataAlbum)
-    printfn "%A" result
+    printfn ""
+    printSongs result
+    printfn ""
     0
 
 [<EntryPoint>]
