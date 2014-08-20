@@ -1,36 +1,32 @@
 {
     "Album": [
         {
-            "Name": "Album A",
+            "Name": "Drifter / 太陽とヴィーナス",
+            "Year": 2001
+        },
+        {
+            "Name": "RUSH",
             "Year": 1999
-        },
-        {
-            "Name": "Album B",
-            "Year": 2011
-        },
-        {
-            "Name": "Album C",
-            "Year": 2005
         }
     ],
     "Song": [
         {
-            "Artist": "X",
-            "Song": "Hoge",
+            "Artist": "Kirinji",
+            "Song": "Drifter",
             "TimeInSec": 71,
-            "Album": "Album A"
+            "Album": "Drifter / 太陽とヴィーナス"
         },
         {
-            "Artist": "Y",
-            "Song": "Nyoro",
+            "Artist": "Kirinji",
+            "Song": "太陽とヴィーナス",
             "TimeInSec": 32,
-            "Album": "Album B"
+            "Album": "Drifter / 太陽とヴィーナス"
         },
         {
-            "Artist": "Z",
-            "Song": "Hoge",
+            "Artist": "the pillows",
+            "Song": "She is perfect",
             "TimeInSec": 91,
-            "Album": "Album A"
+            "Album": "RUSH"
         }
     ]
 }
