@@ -60,6 +60,43 @@ do jvalueRef := choice [jobject
 
 let json = ws >>. jvalue .>> ws .>> eof
 
+(* Map JSON to Album *)
+let mapJAlbum json =
+    let g name year =
+        match name, year with
+        | JString n, JNumber y -> { Name = n; Year = y }
+        | _ -> raise (ParserError "Leaf should be the types.")
+    let f a =
+        match a with
+        | JObject m -> g (Map.find "Name" m) (Map.find "Year" m)
+        | _ -> raise (ParserError "Album list entry should be JObject.")
+    match json with
+    | JList l -> List.map f l
+    | _ -> raise (ParserError "Json Album should be JList.")
+
+let mapJSong albums json =
+    let g artist song timeinsec album =
+        match artist, song, timeinsec, album with
+        | JString ar, JString so, JNumber ti, JString al ->
+            { Artist = ar; Song = so; TimeInSec = ti; Album = List.find (fun x -> x.Name = al ) albums }
+        | _ -> raise (ParserError "Leaf should be the types.")
+    let f a =
+        match a with
+        | JObject m -> g (Map.find "Artist" m) (Map.find "Song" m) (Map.find "TimeInSec" m) (Map.find "Album" m)
+        | _ -> raise (ParserError "Song list entry should be JObject.")
+    match json with
+    | JList l -> List.map f l
+    | _ -> raise (ParserError "Json Song should be JList.")
+
+let mapJsonToAlbum json =
+    let f m =
+         let a = Map.find "Album" m |> mapJAlbum
+         let s = Map.find "Song" m |> mapJSong a
+         (a, s)
+    match json with
+    | JObject m -> f m
+    | _ -> raise (ParserError "Json top should be JObject.")
+
 (* Parse Playlist *)
 type Attribute = AttrName of string
                | AttrYear of int 
@@ -121,22 +158,23 @@ let getFirstLineOfFile file =
     let byte = File.ReadAllBytes(Seq.head initSeq)
     System.Text.ASCIIEncoding.Default.GetString byte
 
-let readInitConfig =
+let readInitConfig () =
     let str = getFirstLineOfFile ".\init-music-box.cnf"
     match run json str with
     | Success(result, _, _)   -> result
     | Failure(errorMsg, _, _) -> raise (ParserError errorMsg)
 
-let readLoadConfig =
+let readLoadConfig () =
     let str = getFirstLineOfFile ".\load-music-box.cnf"
     match run sselect str with
     | Success(result, _, _)   -> result
     | Failure(errorMsg, _, _) -> raise (ParserError errorMsg)
 
-let runplay =
-    let dataJson = readInitConfig
-    printfn "%A" dataJson
-    let dataSelect = readLoadConfig
+let runplay () =
+    let dataJson = readInitConfig ()
+    let dataAlbum = mapJsonToAlbum dataJson
+    printfn "%A" dataAlbum
+    let dataSelect = readLoadConfig ()
     printfn "%A" dataSelect
     0
 
@@ -145,5 +183,5 @@ let main argv =
     match argv with
     | [| "--init" ; file |] -> runinit file
     | [| "--load" ; file |] -> runload file
-    | [| "--play" |]        -> runplay
+    | [| "--play" |]        -> runplay ()
     | _                     -> printfn "*** Unknown command option."; 1
