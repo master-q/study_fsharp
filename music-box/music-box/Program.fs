@@ -170,12 +170,40 @@ let readLoadConfig () =
     | Success(result, _, _)   -> result
     | Failure(errorMsg, _, _) -> raise (ParserError errorMsg)
 
+let rec filterBy selBy songs =
+    let f by song =
+        let ops = match fst by with
+                  | SeoLt -> (<)
+                  | SeoEq -> (=)
+                  | _     -> (>)
+        let opi = match fst by with
+                  | SeoLt -> (<)
+                  | SeoEq -> (=)
+                  | _     -> (>)
+        match snd by with
+        | AttrName s      -> ops song.Album.Name s
+        | AttrYear i      -> opi song.Album.Year i
+        | AttrArtist s    -> ops song.Artist s
+        | AttrSong s      -> ops song.Song s
+        | AttrTimeInSec i -> opi song.TimeInSec i
+    match selBy with
+    | x :: xs -> List.filter (f x) songs |> filterBy xs
+    | [] -> songs
+
+let filterSongs sel songs =
+    let selBy = fst sel |> fst
+    let selSort = fst sel |> snd
+    let selTop = snd sel
+    filterBy selBy songs // |> filterSort selSort |> filterTop selTop
+
 let runplay () =
     let dataJson = readInitConfig ()
     let dataAlbum = mapJsonToAlbum dataJson
     printfn "%A" dataAlbum
     let dataSelect = readLoadConfig ()
     printfn "%A" dataSelect
+    let result = filterSongs dataSelect (snd dataAlbum)
+    printfn "%A" result
     0
 
 [<EntryPoint>]
